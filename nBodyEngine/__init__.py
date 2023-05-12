@@ -18,5 +18,7 @@ def simulateFromJson(jsonFile: str) -> None:
 
 
 		#comincia la simulazione
-		GraphEngine.graph(content['Simulation']['size'], content['Simulation']['speed'], bodies)
+		print(content['Simulation']['size'])
+		simulation = GraphEngine.Graph(bodies, content['Simulation']['size'])
+		simulation.start(content['Simulation']['speed'])
 		print(cwd)
