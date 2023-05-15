@@ -1,13 +1,11 @@
 from . import Body
 from . import GraphEngine
 import json
-import os
 
 print('Modulo importato con successo')
 
 def simulateFromJson(jsonFile: str) -> None:
-	cwd: str = os.getcwd()
-	with open(cwd+'\\'+jsonFile, 'r') as file:
+	with open(jsonFile, 'r') as file:
 		content = json.load(file) # estrae il contenuto del file
 
 		#crea i corpi
@@ -21,4 +19,3 @@ def simulateFromJson(jsonFile: str) -> None:
 		print(content['Simulation']['size'])
 		simulation = GraphEngine.Graph(bodies, content['Simulation']['size'])
 		simulation.start(content['Simulation']['speed'])
-		print(cwd)
