@@ -38,3 +38,41 @@ The class contains the following functions:
 - **nBodyEngine.Graph.animate()**: Automatically called by matplotlib, updates the position of all bodies with their **update()** method.
 
 - **nBodyEngine.Graph.start(timescale)**: Starts the simulation, requires a parameter (timescale) representing the speed of the simulation.
+
+## Simulating from a json file
+
+The **nBodyEngine.simulateFromJson(jsonFile)** function allows to start a simulation directly from a Json file. This file must be structured as follows:
+
+```json
+{
+	"Bodies":[
+    bodies,
+	],
+	"Simulation":{
+		"speed": speed,
+		"size": size
+	}
+}
+```
+Replacing '**bodies**' with the list of bodies in the simulation, these bodies will be represented as simply the first input of **nBodyEngine.Body()**. For example:
+```json{
+	"Bodies":[
+    [1.98e87, 0, 0, 0, 0],
+	],
+	"Simulation":{
+		"speed": speed,
+		"size": size
+	}
+}
+```
+
+(where in the simulation there is only one body with a mass of 1.98e87 kg, x and y positions of 0, and x and y velocities of 0). '**speed**' and '**size**' are respectively the speed of the simulation (timescale) and the size of the graph (graphLimits).
+
+### Example
+This function can be used as follows:
+```python
+import nBodyEngine as be
+
+be.simulateFromJson(path)
+```
+where '**path**' is the file path starting from C:/
