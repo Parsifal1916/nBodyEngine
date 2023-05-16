@@ -28,7 +28,7 @@ class Body:
 		'''calcola la grandezza del marker'''
 		size = 0
 		if not self.useAccurateSize:
-			return log10(body.m)/10 # se non usa la grandezza accurata mette log10 della massa su 10
+			return np.log10(self.m)/10 # se non usa la grandezza accurata mette log10 della massa su 10
 	
 		if not self.isBlackHole: 
 			size = (self.radius/graphLimits)*263 #se è un buco nero ritorna il raggio di s
