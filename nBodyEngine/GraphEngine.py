@@ -19,14 +19,15 @@ class Graph:
 		self.ax.set_ylim(-self.graphLimits, self.graphLimits)
 		self.ax.set_aspect('equal')
 		self.ax.set_xlabel('x (m)')
+
 		self.ax.set_ylabel('y (m)')	
 			
 	def animate(self, i):
-
+		print("aaa")
 		self.updateScreen()
 		#calcola le forze per tutti i corpi
 		for body in self.bodies:
-			self.ax.plot(body.x, body.y, 'o', markersize=log10(body.m)/10, color=body.color)
+			self.ax.plot(body.x, body.y, 'o', markersize=body.getMarkerSize(self.graphLimits), color=body.color)
 			dt = 2e-20
 			body.update(dt)
 	
