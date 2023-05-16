@@ -12,6 +12,7 @@ The **nBodyEngine.Body** class is used to represent celestial bodies. This class
 - y position (in meters)
 - x velocity (in m/s)
 - y velocity (in m/s)
+- radius of the body (in meters)
 - (optional) marker color for visualization in the graph
 The second list contains all nBodyEngine.Body objects present in the simulation.
 
@@ -24,6 +25,12 @@ The class contains the following functions:
 - **nBodyEngine.Body.GetDistance(x, y)**: Calculates the distance between the given body and a given coordinate. Used to calculate gravitational attraction between bodies.
 
 - **nBodyEngine.Body.getDirectionVector(x, y)**: Calculates the x and y components of a force from the given coordinates.
+
+- **nBodyEngine.Body.getMarkerSize(graphLimits)**: Calculates the size of the marker according to the size of the graph (graphLimits) and the radius of the object; it will return a number based on the mass if '**useAccurateSize**' is set to false.
+
+You can also set these optional boolean values:
+- **canBeBH**, it will be used in later versions to enable/disable black holes
+- **useAccurateSize**, it will be defaulted to True, see **nBody.Body.getMarkerSize**
 
 ### GraphEngine.py
 This script contains the Graph class which requires the following arguments (in order):
@@ -51,22 +58,25 @@ The **nBodyEngine.simulateFromJson(jsonFile)** function allows to start a simula
 	"Simulation":{
 		"speed": speed,
 		"size": size
+		"useAccurateSize": 1
 	}
 }
 ```
 Replacing '**bodies**' with the list of bodies in the simulation, these bodies will be represented as simply the first input of **nBodyEngine.Body()**. For example:
-```json{
+```json
+{
 	"Bodies":[
     [1.98e87, 0, 0, 0, 0],
 	],
 	"Simulation":{
 		"speed": speed,
 		"size": size
+		"useAccurateSize": 1
 	}
 }
 ```
 
-(where in the simulation there is only one body with a mass of 1.98e87 kg, x and y positions of 0, and x and y velocities of 0). '**speed**' and '**size**' are respectively the speed of the simulation (timescale) and the size of the graph (graphLimits).
+(where in the simulation there is only one body with a mass of 1.98e87 kg, x and y positions of 0, and x and y velocities of 0). '**speed**' and '**size**' are respectively the speed of the simulation (timescale) and the size of the graph (graphLimits). useAccurateSize can be set to 1 to scale every body according to their radius (see **nBodyEngine.Body.getMarkerSize**') or to 0; if you omit it, it will be defaulted to True
 
 ### Example
 This function can be used as follows:
