@@ -20,19 +20,24 @@ class Body:
 			self.color = infos[6]
 			return
 		self.color = 'blue'
-		
+
 	def r_sMarker(self, graphLimits):
 		return ((6*self.m*G/c**2)/graphLimits)*263
 
 	def getMarkerSize(self, graphLimits):
 		'''calcola la grandezza del marker'''
-		if self.useAccurateSize:
-			if not self.isBlackHole: return (self.radius/graphLimits)*263 #se è un buco nero ritorna il raggio di s
-			return(2*self.m*G/c**2/graphLimits)*263 
-		return log10(body.m)/10 # se non usa la grandezza accurata mette log10 della massa su 10
+		size = 0
+		if not self.useAccurateSize:
+			return log10(body.m)/10 # se non usa la grandezza accurata mette log10 della massa su 10
+	
+		if not self.isBlackHole: 
+			size = (self.radius/graphLimits)*263 #se è un buco nero ritorna il raggio di s
+		size = (2*self.m*G/c**2/graphLimits)*263 
+		if size > 263: return 263 
 
 	def update(self,dt):
 		''' aggiorna la velocità '''
+
 		fx, fy = self.net_force()
 		self.vx += fx / self.m * dt
 		self.vy += fy / self.m * dt 
@@ -45,9 +50,9 @@ class Body:
 		'''calcola la forza totale'''
 		p_force = np.array([0.,0.])
 		for other in self.bodies:
-			if other == self: continue 				 # esclude se stesso
-			r, dx, dy = self.getDistance(other.x, other.y) 		 # ottiene r x calcolare la forza
-			f = -G * self.m * other.m / r**2   			 # calcola la forza
+			if other == self: continue 							   # esclude se stesso
+			r, dx, dy = self.getDistance(other.x, other.y) 		   # ottiene r x calcolare la forza
+			f = -G * self.m * other.m / r**2   					   # calcola la forza
 			p_force += self.getDirectionVector(other.x, other.y)*f # aggiorna la forza
 		return p_force[0], p_force[1]
 
