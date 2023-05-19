@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import numpy as np
 
 class Graph:
 	def __init__(self, bodies, graphLimits, graphs: list = []) -> None:
@@ -55,7 +56,7 @@ class Graph:
 			self.graphsPositions[x].clear()
 			for j in self.bodies:
 				self.graphsData[x].append(j.getAttribute(self.graphs[x]))
-				self.graphsPositions[x].plot(self.graphsData[x], range(len(self.graphsData[x])), label = f'Body {x+1}')
+				self.graphsPositions[x].plot(self.graphsData[x], np.array(0,len(self.graphsData[x])), label = f'Body {x+1}')
 
 		#aggiorna posizione e dimensione del primo grafico (quello con la simulazione)
 		
