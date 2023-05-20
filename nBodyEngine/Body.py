@@ -21,10 +21,18 @@ class Body:
 			return
 		self.color = 'blue'
 
-	def r_sMarker(self, graphLimits):
-		return ((6*self.m*G/c**2)/graphLimits)*263
+	def getAttribute(self, attr: int): # new
+		'''ritorna un attributo a seconda del numero''' # si potrebbe fare in un altro modo con una lista in update ma è troppo poco efficente
+		assert isinstance(attr, int), "invalid input"
+		if attr == 0: return abs(self.vx+self.vy)					#velocità
+		if attr == 1: return self.getAttribute(0)**2*self.m*.5	#energia cinetica
+		res: float = 0
+		for _ in self.bodies: 				# se questo codice viene eseguito  vuoldire che attr != [0,1]
+			if _ == self: continue 			# esclude se stesso
+			res += -self.m*_.m*G/self.getDistance(_.x, _.y)[0]
+			return res			
 
-	def getMarkerSize(self, graphLimits):
+	def getMarkerSize(self, graphLimits) -> int: 
 		'''calcola la grandezza del marker'''
 		size = 0
 		if not self.useAccurateSize:
@@ -37,7 +45,7 @@ class Body:
 
 	def update(self,dt):
 		''' aggiorna la velocità '''
-
+		self.getAttribute(0)
 		fx, fy = self.net_force()
 		self.vx += fx / self.m * dt
 		self.vy += fy / self.m * dt 
@@ -46,7 +54,7 @@ class Body:
 		self.x += self.vx * dt 
 		self.y += self.vy * dt
 
-	def net_force(self):
+	def net_force(self) -> tuple[float, ...]:
 		'''calcola la forza totale'''
 		p_force = np.array([0.,0.])
 		for other in self.bodies:
@@ -56,13 +64,13 @@ class Body:
 			p_force += self.getDirectionVector(other.x, other.y)*f # aggiorna la forza
 		return p_force[0], p_force[1]
 
-	def getDistance(self, x, y) -> float:
+	def getDistance(self, x, y) -> tuple[float, ...]:
 		'''calcola la distanza tra se stesso e un punto'''
 		dx = abs(x - self.x)
 		dy = abs(y - self.y)
 		return np.sqrt(dx**2 + dy**2), dx, dy
 
-	def getDirectionVector(self, x, y):
+	def getDirectionVector(self, x, y) -> float:
 		'''calcola il vettore direzione'''
 		myposition = np.array([self.x, self.y])
 		itsposition = np.array([x,y])

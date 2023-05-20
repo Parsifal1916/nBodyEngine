@@ -18,6 +18,12 @@ The second list contains all nBodyEngine.Body objects present in the simulation.
 
 The class contains the following functions:
 
+- **nBodyEngine.Body.getAttribute(attr)**: depending on the value of '**attr**' it returns a different attribute of the body. it is used by **GraphEngine.py** to graph velocity, kinetic and potential energy. The possible inputs are listed below:
+	- **0**: Returns the body's velocity
+	- **1**: Returns the body's kinetic Energy
+	- **2**: Returns the body's potential Energy
+	- Any other number will return **None**
+
 - **nBodyEngine.Body.update(dt)**: Updates the position (**self.x** and **self.y**) based on the velocity value (**self.vx** and **self.vy**).
 
 - **nBodyEngine.Body.net_force()**: Calculates the force exerted by all other bodies in the simulation on the given body. Returns two floats (**nBodyEngine.Body.fy** and **nBodyEngine.Body.fx**).
@@ -39,6 +45,10 @@ This script contains the Graph class which requires the following arguments (in 
 - graphLimits, a float representing the dimensions of the graph
 
 The class contains the following functions:
+
+- **nBodyEngine.Graph.constructGraphsPosition()**: An internal function used to map the array of graphs in order to make it easier for **updateScreen()** to display data about the simulation.
+
+- **nBodyEngine.Graph.constructGraphsData**: An internal function used to map bodies and the corresponding attributes.
 
 - **nBodyEngine.Graph.updateScreen()**: Clears the screen and resets the graph dimensions.
 
@@ -85,4 +95,20 @@ import nBodyEngine as be
 
 be.simulateFromJson(path)
 ```
-where '**path**' is the file path starting from C:/
+where '**path**' is the file path starting from C:/. You can also add the parameter '**graphs**', it is a list of additional graphs that will be added to the simulation as shown below. 
+![image](https://github.com/Parsifal1916/nBodyEngine/assets/120274850/d8b033d2-87ca-4e60-90f3-5f5a7cda08a7)
+This list must have a length of 3 elements maximum (since there are only 3 attributes to show). Those elements must be valid inputs for the **nBodyEngine.Body.getAttribute(attr)**'.
+```json
+{
+	"Bodies":[
+    [1.98e87, 0, 0, 0, 0],
+	],
+	"Simulation":{
+		"speed": speed,
+		"size": size
+		"useAccurateSize": 1,
+		"graph": [0,1,2]
+	}
+}
+```
+In this example we create a simulation with all three attributs shown. You can change the order and the amount of attributes as you prefer.
