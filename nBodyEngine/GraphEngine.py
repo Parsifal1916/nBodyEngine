@@ -82,7 +82,7 @@ class Graph:
 			for j in range(len(self.bodies)):
 				self.graphsData[x-1][j].append(self.bodies[j].getAttribute(self.graphs[x-1]))
 				self.graphsPositions[x].plot(range(len(self.graphsData[x-1][j])), self.graphsData[x-1][j])
-
+				
 	def animate(self, i) -> None:
 		self.updateScreen()
 		#calcola le forze per tutti i corpi
