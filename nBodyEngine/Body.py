@@ -23,15 +23,14 @@ class Body:
 
 	def getAttribute(self, attr: int):
 		'''ritorna un attributo a seconda del numero''' # si potrebbe fare in un altro modo con una lista in update ma è troppo poco efficente
-		assert isinstance(attr, int), "non-valid input"
-		if attr == 0: return self.vx+self.vy				#velocità
+		assert isinstance(attr, int), "invalid input"
+		if attr == 0: return self.vx+self.vy					#velocità
 		if attr == 1: return self.getAttribute(0)**2*self.m*.5	#energia cinetica
 		res: float = 0
-		for _ in self.bodies: # se questo codice viene eseguito  vuoldire che attr != [0,1]
-			if _ == self: continue # esclude se stesso
+		for _ in self.bodies: 				# se questo codice viene eseguito  vuoldire che attr != [0,1]
+			if _ == self: continue 			# esclude se stesso
 			res += -self.m*_.m*G/self.getDistance(_.x, _.y)[0]
 			return res
-
 
 	def getMarkerSize(self, graphLimits):
 		'''calcola la grandezza del marker'''
