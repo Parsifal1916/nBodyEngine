@@ -5,26 +5,26 @@ c = 299_792_458  # m/s velocità della luce
 
 class Body:
 	def __init__(self, infos: list, bodies: list, canBeBH: bool = True, useAccurateSize: bool = True) -> None:
-		self.m = infos[0]	# Massa 		kg
-		self.x = infos[1]	# posizione y	m
-		self.y = infos[2]   # posizione x 	m
-		self.vx = infos[3]  # velocità x 	m/s
-		self.vy = infos[4]  # velocità y	m/s
-		self.radius = infos[5] # raggio del corpo
+		self.m: float = infos[0]	# Massa 		kg
+		self.x: float = infos[1]	# posizione y	m
+		self.y: float = infos[2]   # posizione x 	m
+		self.vx: float = infos[3]  # velocità x 	m/s
+		self.vy: float = infos[4]  # velocità y	m/s
+		self.radius: float = infos[5] # raggio del corpo
 
-		self.bodies = bodies
-		self.useAccurateSize = useAccurateSize
+		self.bodies: list[Body, ...] = bodies
+		self.useAccurateSize: bool = useAccurateSize
 		
 		self.isBlackHole: bool = (self.radius <= 2*self.m*G/c**2) & canBeBH
 		if len(infos) == 7: 
 			self.color = infos[6]
 			return
-		self.color = 'blue'
+		self.color: str = 'blue'
 
-	def getAttribute(self, attr: int): # new
+	def getAttribute(self, attr: int) -> float: # new
 		'''ritorna un attributo a seconda del numero''' # si potrebbe fare in un altro modo con una lista in update ma è troppo poco efficente
-		assert isinstance(attr, int), "invalid input"
-		if attr == 0: return abs(self.vx)+abs(self.vy)		#velocità
+		assert attr in [0,1,2], f"invalid input: it must be 0, 1 or 2 not {attr}"
+		if attr == 0: return abs(self.vx)+abs(self.vy)			#velocità
 		if attr == 1: return self.getAttribute(0)**2*self.m*.5	#energia cinetica
 		res: float = 0
 		for _ in self.bodies: 				# se questo codice viene eseguito  vuoldire che attr != [0,1]
