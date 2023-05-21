@@ -88,7 +88,7 @@ class Graph:
 		#calcola le forze per tutti i corpi
 		for body in self.bodies:
 			self.graphsPositions[0].plot(body.x, body.y, 'o', markersize=body.getMarkerSize(self.graphLimits), color=body.color)
-			dt = 360*24#self.timescale*2e-20
+			dt = self.timescale
 			body.update(dt)
 	
 	def start(self, timescale) -> None:
