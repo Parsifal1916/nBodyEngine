@@ -24,7 +24,7 @@ class Body:
 	def getAttribute(self, attr: int): # new
 		'''ritorna un attributo a seconda del numero''' # si potrebbe fare in un altro modo con una lista in update ma è troppo poco efficente
 		assert isinstance(attr, int), "invalid input"
-		if attr == 0: return abs(self.vx+self.vy)					#velocità
+		if attr == 0: return abs(self.vx)+abs(self.vy)		#velocità
 		if attr == 1: return self.getAttribute(0)**2*self.m*.5	#energia cinetica
 		res: float = 0
 		for _ in self.bodies: 				# se questo codice viene eseguito  vuoldire che attr != [0,1]
