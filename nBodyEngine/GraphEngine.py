@@ -6,11 +6,11 @@ class Graph:
 	def __init__(self, bodies, graphLimits, graphs: list = []) -> None:
 		self.bodies: list = bodies
 		self.graphLimits: float = graphLimits
-		self.graphs: list = graphs
+		self.graphs: list[int , ...] = graphs
 		self.hasMultipleGraphs:bool = False
-		self.graphsPositions: list = []
-		self.graphsData: list = [{},{},{}] 
-		'''quetsa lista contine un dict per ogni attributo possibile (per ora 3)
+		self.nOfGraphs: int = len(graphs)
+
+		'''questa lista conteine un dict per ogni attributo possibile (per ora 3)
 		   i dict contengono n del corpo : [grafico]
 			{
 				[0] : {
@@ -23,43 +23,41 @@ class Graph:
 				}
 			}
 		   '''
-		self.constructGraphsData()
 
 		# se ci sono dei grafici extra da inserire crea graph data con tante liste vuote quanti grafici extra ci sono 
-		if len(graphs) in [1,2]: rows, cols = 1, len(graphs)+1
-		elif len(graphs) == 3: rows, cols = 2,2
-		self.hasMultipleGraphs = (graphs != [])			# ha più di un grafico?
-		if not self.hasMultipleGraphs: rows, cols = 1,1	# se no col e row sono 1
+		assert self.nOfGraphs <= 3, f"You cannot put more than three graphs in the simulation. Tou tried to put {self.nOfGraphs}"
 
-		self.rows = rows
-		self.cols = cols
+		if self.nOfGraphs in [1,2]: rows, cols = 1, self.nOfGraphs+1
+		elif self.nOfGraphs == 3: rows, cols = 2,2		
+		if graphs == []: rows, cols = 1,1	# se ha solo un grafico col e row sono 1
+
+		self.rows: int = rows
+		self.cols: int = cols
 		self.fig, self.ax = plt.subplots(nrows = rows, ncols = cols)
-		self.constructGraphsPosition()
+		self.graphsPositions: list = self.constructGraphsPosition()
+		self.graphsData = self.constructGraphsData()
 
-	def constructGraphsPosition(self) -> None:
+	def constructGraphsPosition(self) -> list:
 		'''determina le dimensioni di GraphsPosition con cols e rows'''
 
-		if self.cols == 1: # se non ci sono altri grafici mette 
-			self.graphsPositions = [self.ax]
-			return
+		if not self.nOfGraphs: 
+			return [self.ax] # se non ci sono altri grafici mette 
 
-		self.graphsPositions: list = []
-		graphsLenght: int = len(self.graphs)
-
-		if graphsLenght in [1,2]:
-			self.cols, rows= graphsLenght+1, 1
-			self.graphsPositions = [self.ax[i] for i in range(len(self.graphs)+1)]
-			del graphsLenght
-			return
+		if self.nOfGraphs in [1,2]: 
+			return [self.ax[i] for i in range(self.nOfGraphs+1)]
+		res: list = []
 
 		for x in range(2):
 			for y in range(2):
-				self.graphsPositions.append(self.ax[x,y])
+				res.append(self.ax[x,y])
+		return res
 
-	def constructGraphsData(self) -> None:
-		for attributes in range(len(self.graphsData)):
+	def constructGraphsData(self) -> list[dict[int, list], ...]:
+		res: list[dict[int, list], ...] = [{},{},{}]
+		for attributes in range(self.nOfGraphs):
 			for bodies in range(len(self.bodies)):
-				self.graphsData[attributes][bodies] = []
+				res[attributes][bodies] = []
+		return res
 
 	def updateScreen(self) -> None:
 		#pulisce tutti i grafici
@@ -69,7 +67,7 @@ class Graph:
 		_.set_ylim(-self.graphLimits, self.graphLimits)
 		_.set_aspect('auto')
 		_.set_xlabel('x (m)')
-		_.set_ylabel('y (m)') # se c'è più di un grafico deve usare la notazione ax[x,y]
+		_.set_ylabel('y (m)')
 		del _
 
 		'''il pezzo sotto va in ogni grafico (self.graphs), poi in ogni corpo e aggiorna
