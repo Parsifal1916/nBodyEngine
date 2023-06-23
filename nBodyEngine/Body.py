@@ -45,8 +45,6 @@ class Body:
 
 	def update(self,dt):
 		''' aggiorna la velocità '''
-		self.getSecondPNE(self.bodies)
-
 		self.getAttribute(0)
 		fx, fy = self.net_force()
 		self.vx += fx / self.m * dt
@@ -66,44 +64,11 @@ class Body:
 			p_force += self.getDirectionVector(other.x, other.y)*f # aggiorna la forza
 		return p_force[0], p_force[1]
 
-	def getSecondPNE(self, bodies):
-		vec = [0,0]
-		for i in bodies:
-			# calcola il semiasse maggiore
-			a = G* i.m / (2 * G - self.getDistance(i.x, i.y)[0] * self.Velocity**2)
-
-			# calcola il semiasse minore
-			v_rad = (self.x * self.vx + self.y * self.vy) / np.sqrt(self.x**2 + self.y**2) # velocità radiale
-			h = self.x * self.vy - self.y * self.vx # momento angolare specifico
-			E = (self.vx**2 + self.vy**2) / 2 - G * i.m / self.Velocity # e specifica
-			b = h**2 / (G * i.m * (1 - E**2))
-
-			if a < self.getDistance(i.x, i.y)[0]: continue
-
-			# calcola l'eccentricità
-			e = np.sqrt(1-a/b) 
-
-			# calcolo delta pheda
-			delta_pheda = (6*float(np.pi)*G*i.m) / (c**2 * a * (1 - e**2))
-
-			Fx_precession = delta_pheda * self.Velocity * self.m * self.vy / self.getDistance(i.x, i.y)
-			Fy_precession = -delta_pheda * self.Velocity * self.m * self.vx / self.getDistance(i.x, i.y)
-
-			vec[0] += Fx_precession
-			vec[1] += Fy_precession
-			
-		vec[0] /= len(bodies)
-		vec[1] /= len(bodies)
-			
 	def getDistance(self, x, y) -> tuple[float, ...]:
 		'''calcola la distanza tra se stesso e un punto'''
 		dx = abs(x - self.x)
 		dy = abs(y - self.y)
 		return np.sqrt(dx**2 + dy**2), dx, dy
-
-	@property
-	def Velocity(self):
-		return np.sqrt(self.vy**2 + self.vx**2)
 
 	def getDirectionVector(self, x, y) -> float:
 		'''calcola il vettore direzione'''
