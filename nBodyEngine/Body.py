@@ -24,13 +24,56 @@ class Body:
 	def getAttribute(self, attr: int) -> float: # new
 		'''ritorna un attributo a seconda del numero''' # si potrebbe fare in un altro modo con una lista in update ma è troppo poco efficente
 		assert attr in [0,1,2], f"invalid input: it must be 0, 1 or 2 not {attr}"
-		if attr == 0: return abs(self.vx)+abs(self.vy)			#velocità
+		if attr == 0: return self.Velocity		#velocità
 		if attr == 1: return self.getAttribute(0)**2*self.m*.5	#energia cinetica
 		res: float = 0
 		for _ in self.bodies: 				# se questo codice viene eseguito  vuoldire che attr != [0,1]
 			if _ == self: continue 			# esclude se stesso
 			res += -self.m*_.m*G/self.getDistance(_.x, _.y)[0]
-			return res			
+			return res		
+
+	@property 
+	def Velocity(self):
+		return np.sqrt(self.vx**2 + self.vy**2)
+
+	def pitagora(self, x, y):
+		return np.sqrt(float(x)**2 + float(y)**2)
+
+	def getSecondPNE(self, bodies):
+		vec = [0,0]
+		for i in bodies:
+			if i == self: continue
+			# calcola il semiasse maggiore
+			a = G* i.m / (2 * G - self.getDistance(i.x, i.y)[0] * self.Velocity**2)
+
+			# calcola il semiasse minore
+			v_rad = (self.x * self.vx + self.y * self.vy) / self.pitagora(self.x, self.y) # velocità radiale
+			h = self.x * self.vy - self.y * self.vx # momento angolare specifico
+			E = self.Velocity**2 / 2 - G * i.m / self.getDistance(i.x, i.y)[0] # e specifica
+			b = h**2 / (G * i.m * (1 - E**2))
+
+
+			if a < self.getDistance(i.x, i.y)[0]: continue
+
+			# calcola l'eccentricità
+			e = np.sqrt(float(1-a/b))
+
+			# angolo di precessione
+			delta_pheda = (6*float(np.pi)*G*i.m) / (c**2 * a * (1 - e**2))
+
+			if not self.validateInput(e, h, E, b, v_rad, a, delta_pheda): continue
+
+			Fx_precession = float(delta_pheda) * float(self.Velocity) * float(self.m) * float(self.vy) / self.getDistance(i.x, i.y)[0]
+			vec[0] += Fx_precession
+			Fy_precession = float(-delta_pheda) * float(self.Velocity) * float(self.m) * float(self.vx) / self.getDistance(i.x, i.y)[0]
+			vec[1] += Fy_precession
+			
+			
+		if vec[0] == vec[1] == 0: return vec
+		vec[0] /= len(bodies)
+		vec[1] /= len(bodies)
+
+		return vec	
 
 	def getMarkerSize(self, graphLimits) -> int: 
 		'''calcola la grandezza del marker'''
@@ -45,7 +88,12 @@ class Body:
 
 	def update(self,dt):
 		''' aggiorna la velocità '''
-		self.getAttribute(0)
+
+		precX, precY = self.getSecondPNE(self.bodies)
+
+		self.vx += (precX / self.m) * dt
+		self.vy += (precY / self.m) * dt
+
 		fx, fy = self.net_force()
 		self.vx += fx / self.m * dt
 		self.vy += fy / self.m * dt 
@@ -64,11 +112,19 @@ class Body:
 			p_force += self.getDirectionVector(other.x, other.y)*f # aggiorna la forza
 		return p_force[0], p_force[1]
 
+	def validateInput(self, *num):
+		validation = [np.isnan(i) or np.isinf(i) for i in num]
+		return not all(validation)
+
 	def getDistance(self, x, y) -> tuple[float, ...]:
 		'''calcola la distanza tra se stesso e un punto'''
-		dx = abs(x - self.x)
-		dy = abs(y - self.y)
-		return np.sqrt(dx**2 + dy**2), dx, dy
+		dx, dy = 1, 1 # valori di default
+
+		if self.validateInput(x, self.x):dx = abs(x - self.x)
+
+		if self.validateInput(y, self.y): dy = abs(y - self.y)
+
+		return self.pitagora(dx, dy), dx, dy
 
 	def getDirectionVector(self, x, y) -> float:
 		'''calcola il vettore direzione'''
