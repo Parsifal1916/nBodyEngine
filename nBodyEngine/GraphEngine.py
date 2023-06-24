@@ -59,6 +59,7 @@ class Graph:
 				res[attributes][bodies] = []
 		return res
 
+
 	def updateScreen(self) -> None:
 		#pulisce tutti i grafici
 		_ = self.graphsPositions[0]
