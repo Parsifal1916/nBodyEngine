@@ -93,6 +93,6 @@ class Graph:
 	def start(self, timescale) -> None:
 		self.timescale: float = timescale
 		self.updateScreen()
-		ani = FuncAnimation(self.fig, self.animate, frames=30, interval=10)
+		ani = FuncAnimation(self.fig, self.animate, frames=250, interval=10)
 
 		plt.show()
