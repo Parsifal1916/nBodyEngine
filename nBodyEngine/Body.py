@@ -3,6 +3,7 @@ import numpy as np
 G = 6.67430e-11  # N(m/kg)^2
 c = 299_792_458  # m/s velocità della luce
 
+
 class Body:
 	def __init__(self, infos: list, bodies: list, canBeBH: bool = True, useAccurateSize: bool = True) -> None:
 		self.m: float = infos[0]	# Massa 		kg
@@ -11,6 +12,9 @@ class Body:
 		self.vx: float = infos[3]  # velocità x 	m/s
 		self.vy: float = infos[4]  # velocità y	m/s
 		self.radius: float = infos[5] # raggio del corpo
+
+		self.possibleAttributes = [0,1,2,3]
+		self.p_TotForce = 0
 
 		self.bodies: list[Body, ...] = bodies
 		self.useAccurateSize: bool = useAccurateSize
@@ -23,14 +27,15 @@ class Body:
 
 	def getAttribute(self, attr: int) -> float: # new
 		'''ritorna un attributo a seconda del numero''' # si potrebbe fare in un altro modo con una lista in update ma è troppo poco efficente
-		assert attr in [0,1,2], f"invalid input: it must be 0, 1 or 2 not {attr}"
+		assert attr in self.possibleAttributes, f"invalid input: it must be 0, 1, 2 or 3 not {attr}"
 		if attr == 0: return self.Velocity		#velocità
 		if attr == 1: return self.getAttribute(0)**2*self.m*.5	#energia cinetica
+		if attr == 3: return self.p_TotForce
 		res: float = 0
 		for _ in self.bodies: 				# se questo codice viene eseguito  vuoldire che attr != [0,1]
 			if _ == self: continue 			# esclude se stesso
 			res += -self.m*_.m*G/self.getDistance(_.x, _.y)[0]
-			return res		
+		return res		
 
 	@property 
 	def Velocity(self):
@@ -40,40 +45,36 @@ class Body:
 		return np.sqrt(float(x)**2 + float(y)**2)
 
 	def getSecondPNE(self, bodies):
-		vec = [0,0]
-		for i in bodies:
-			if i == self: continue
-			# calcola il semiasse maggiore
-			a = G* i.m / (2 * G - self.getDistance(i.x, i.y)[0] * self.Velocity**2)
+		vec = [0, 0]
 
-			# calcola il semiasse minore
-			v_rad = (self.x * self.vx + self.y * self.vy) / self.pitagora(self.x, self.y) # velocità radiale
-			h = self.x * self.vy - self.y * self.vx # momento angolare specifico
-			E = self.Velocity**2 / 2 - G * i.m / self.getDistance(i.x, i.y)[0] # e specifica
-			b = h**2 / (G * i.m * (1 - E**2))
+		totalMass = sum([i.m for i in bodies])
 
+		# calcola il baricentro comune
+		center_x = sum([body.m * body.x for body in bodies]) / sum([body.m for body in bodies])
+		center_y = sum([body.m * body.y for body in bodies]) / sum([body.m for body in bodies])
+ 		
+		r, dx, dy = self.getDistance(center_x, center_y) # distanza dal baricentro
 
-			if a < self.getDistance(i.x, i.y)[0]: continue
+		a = -G * totalMass / (2 * (self.getAttribute(2) + self.getAttribute(1))/self.m)# semiasse maggiore
 
-			# calcola l'eccentricità
-			e = np.sqrt(float(1-a/b))
+		b = r*self.Velocity / G*totalMass
+        
+		#if np.isnan(a) or np.isnan(b) or np.isinf(a) or np.isinf(b): continue
+        
+		e = np.sqrt(np.abs(1 - (b**2 / a**2)))
 
-			# angolo di precessione
-			delta_pheda = (6*float(np.pi)*G*i.m) / (c**2 * a * (1 - e**2))
+		self.delta_pheda = (6 * np.pi * G * totalMass) / np.where(np.abs(1 - e**2) > 0, (c**2 * a * np.abs(1 - e**2)), np.inf)
+	        
+		Fx_precession = np.where(r > 0, self.delta_pheda * self.Velocity * self.m * self.vy / r, 0)
+		vec[0] += Fx_precession
+	
+		Fy_precession = np.where(r > 0, -self.delta_pheda * self.Velocity * self.m * self.vx / r, 0)
+		vec[1] += Fy_precession
 
-			if not self.validateInput(e, h, E, b, v_rad, a, delta_pheda): continue
+		self.p_TotForce = np.sqrt(Fy_precession**2 + Fx_precession**2)
+	    
+		return vec
 
-			Fx_precession = float(delta_pheda) * float(self.Velocity) * float(self.m) * float(self.vy) / self.getDistance(i.x, i.y)[0]
-			vec[0] += Fx_precession
-			Fy_precession = float(-delta_pheda) * float(self.Velocity) * float(self.m) * float(self.vx) / self.getDistance(i.x, i.y)[0]
-			vec[1] += Fy_precession
-			
-			
-		if vec[0] == vec[1] == 0: return vec
-		vec[0] /= len(bodies)
-		vec[1] /= len(bodies)
-
-		return vec	
 
 	def getMarkerSize(self, graphLimits) -> int: 
 		'''calcola la grandezza del marker'''
@@ -90,6 +91,7 @@ class Body:
 		''' aggiorna la velocità '''
 
 		precX, precY = self.getSecondPNE(self.bodies)
+
 
 		self.vx += (precX / self.m) * dt
 		self.vy += (precY / self.m) * dt
@@ -117,14 +119,20 @@ class Body:
 		return not all(validation)
 
 	def getDistance(self, x, y) -> tuple[float, ...]:
-		'''calcola la distanza tra se stesso e un punto'''
-		dx, dy = 1, 1 # valori di default
+	    '''calcola la distanza tra se stesso e un punto'''
+	    dx, dy = 1, 1 # valori di default
 
-		if self.validateInput(x, self.x):dx = abs(x - self.x)
+	    if self.validateInput(x, self.x):
+	        dx = abs(x - self.x)
 
-		if self.validateInput(y, self.y): dy = abs(y - self.y)
+	    if self.validateInput(y, self.y):
+	        dy = abs(y - self.y)
 
-		return self.pitagora(dx, dy), dx, dy
+	    distance = self.pitagora(dx, dy)
+	    if distance == 0:  # Gestisci il caso in cui la distanza è zero
+	        return 1e-10, dx, dy  # Imposta una distanza minima diversa da zero
+
+	    return distance, dx, dy
 
 	def getDirectionVector(self, x, y) -> float:
 		'''calcola il vettore direzione'''
