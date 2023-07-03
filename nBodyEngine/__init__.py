@@ -16,8 +16,15 @@ def simulateFromJson(jsonFile: str) -> None:
 			try: useAccurateSize = content['Simulation']['useAccurateSize']
 			except KeyError: useAccurateSize = False
 			bodies.append(Body.Body(i, bodies, useAccurateSize = useAccurateSize))
+		for i in bodies: i.bodies = bodies
 
 
 		#comincia la simulazione
-		simulation = GraphEngine.Graph(bodies, content['Simulation']['size'], content['Simulation']['graphs'])
+		simulation=GraphEngine.Graph(
+			bodies, 
+			content['Simulation']['size'], 
+			content['Simulation']['graphs'], 
+			toggleInstableOrbits = content['Simulation'].get('toggleInstableOrbits', False)
+		)
+		
 		simulation.start(content['Simulation']['speed'])
