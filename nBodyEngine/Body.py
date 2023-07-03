@@ -3,7 +3,7 @@ import numpy as np
 G = 6.67430e-11  # N(m/kg)^2
 c = 299_792_458  # m/s velocità della luce
 
-
+		
 class Body:
 	def __init__(self, infos: list, bodies: list, canBeBH: bool = True, useAccurateSize: bool = True) -> None:
 		self.m: float = infos[0]	# Massa 		kg
@@ -12,14 +12,23 @@ class Body:
 		self.vx: float = infos[3]  # velocità x 	m/s
 		self.vy: float = infos[4]  # velocità y	m/s
 		self.radius: float = infos[5] # raggio del corpo
+		self.a = 0
 
 		self.possibleAttributes = [0,1,2,3]
 		self.p_TotForce = 0
 
 		self.bodies: list[Body, ...] = bodies
 		self.useAccurateSize: bool = useAccurateSize
+		print(2*self.m*G/c**2)
+
+		self.schwarzshildRadius = 2*self.m*G/c**2
+		self.instableOrbitThreshold = 3*self.schwarzshildRadius
 		
-		self.isBlackHole: bool = (self.radius <= 2*self.m*G/c**2) & canBeBH
+		self.isBlackHole: bool = (self.radius <= self.schwarzshildRadius) & canBeBH
+		if self.isBlackHole: 
+			self.color = 'black'
+			return 
+
 		if len(infos) == 7: 
 			self.color = infos[6]
 			return
@@ -30,7 +39,7 @@ class Body:
 		assert attr in self.possibleAttributes, f"invalid input: it must be 0, 1, 2 or 3 not {attr}"
 		if attr == 0: return self.Velocity		#velocità
 		if attr == 1: return self.getAttribute(0)**2*self.m*.5	#energia cinetica
-		if attr == 3: return self.p_TotForce
+		if attr == 3: return self.a
 		res: float = 0
 		for _ in self.bodies: 				# se questo codice viene eseguito  vuoldire che attr != [0,1]
 			if _ == self: continue 			# esclude se stesso
@@ -55,15 +64,15 @@ class Body:
  		
 		r, dx, dy = self.getDistance(center_x, center_y) # distanza dal baricentro
 
-		a = -G * totalMass / (2 * (self.getAttribute(2) + self.getAttribute(1))/self.m)# semiasse maggiore
+		self.a = -G * totalMass / (2 * (self.getAttribute(2) + self.getAttribute(1))/self.m)# semiasse maggiore
 
 		b = r*self.Velocity / G*totalMass
         
 		#if np.isnan(a) or np.isnan(b) or np.isinf(a) or np.isinf(b): continue
         
-		e = np.sqrt(np.abs(1 - (b**2 / a**2)))
+		e = np.sqrt(np.abs(1 - (b**2 / self.a**2)))
 
-		self.delta_pheda = (6 * np.pi * G * totalMass) / np.where(np.abs(1 - e**2) > 0, (c**2 * a * np.abs(1 - e**2)), np.inf)
+		self.delta_pheda = (6 * np.pi * G * totalMass) / np.where(np.abs(1 - e**2) > 0, (c**2 * self.a * np.abs(1 - e**2)), np.inf)
 	        
 		Fx_precession = np.where(r > 0, self.delta_pheda * self.Velocity * self.m * self.vy / r, 0)
 		vec[0] += Fx_precession
@@ -81,11 +90,16 @@ class Body:
 		size = 0
 		if not self.useAccurateSize:
 			return np.log10(self.m)/10 # se non usa la grandezza accurata mette log10 della massa su 10
-	
+		
+		size = self.convert2Screen(graphLimits, self.schwarzshildRadius)
+		
 		if not self.isBlackHole: 
-			size = (self.radius/graphLimits)*263 #se è un buco nero ritorna il raggio di s
-		size = (2*self.m*G/c**2/graphLimits)*263 
-		if size > 263: return 263 
+			size = self.convert2Screen(graphLimits, self.radius) #se è un buco nero ritorna il raggio di s
+		
+		if size > 263: return 263
+
+	def convert2Screen(self, graphLimits, lenght):
+		return (lenght/graphLimits)*263
 
 	def update(self,dt):
 		''' aggiorna la velocità '''
