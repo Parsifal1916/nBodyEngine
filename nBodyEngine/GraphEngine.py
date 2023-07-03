@@ -3,12 +3,13 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 
 class Graph:
-	def __init__(self, bodies, graphLimits, graphs: list = []) -> None:
+	def __init__(self, bodies, graphLimits, graphs: list = [], toggleInstableOrbits: bool = False) -> None:
 		self.bodies: list = bodies
 		self.graphLimits: float = graphLimits
 		self.graphs: list[int , ...] = graphs
 		self.hasMultipleGraphs:bool = False
 		self.nOfGraphs: int = len(graphs)
+		self.IOvisible: bool = toggleInstableOrbits # decide se mostrare o meno le orbite instabili
 
 		'''questa lista conteine un dict per ogni attributo possibile (per ora 3)
 		   i dict contengono n del corpo : [grafico]
@@ -26,6 +27,7 @@ class Graph:
 
 		# se ci sono dei grafici extra da inserire crea graph data con tante liste vuote quanti grafici extra ci sono 
 		assert self.nOfGraphs <= 3, f"You cannot put more than three graphs in the simulation. Tou tried to put {self.nOfGraphs}"
+
 
 		if self.nOfGraphs in [1,2]: rows, cols = 1, self.nOfGraphs+1
 		elif self.nOfGraphs == 3: rows, cols = 2,2		
@@ -66,7 +68,7 @@ class Graph:
 		_.clear()
 		_.set_xlim(-self.graphLimits, self.graphLimits)
 		_.set_ylim(-self.graphLimits, self.graphLimits)
-		_.set_aspect('auto')
+		_.set_aspect('equal')
 		_.set_xlabel('x (m)')
 		_.set_ylabel('y (m)')
 		del _
@@ -77,7 +79,7 @@ class Graph:
 		
 		for x in range(1,len(self.graphsPositions)):
 			self.graphsPositions[x].clear()
-			
+
 			for j in range(len(self.bodies)):
 				self.graphsData[x-1][j].append(self.bodies[j].getAttribute(self.graphs[x-1]))
 				self.graphsPositions[x].plot(range(len(self.graphsData[x-1][j])), self.graphsData[x-1][j])
@@ -87,12 +89,16 @@ class Graph:
 		#calcola le forze per tutti i corpi
 		for body in self.bodies:
 			self.graphsPositions[0].plot(body.x, body.y, 'o', markersize=body.getMarkerSize(self.graphLimits), color=body.color)
+			if self.IOvisible: 
+				marker_circle = plt.Circle((body.x, body.y), body.convert2Screen(self.graphLimits, body.instableOrbitThreshold), edgecolor='black', facecolor='none')
+				self.graphsPositions[0].add_patch(marker_circle)
+			
 			dt = self.timescale
 			body.update(dt)
 	
 	def start(self, timescale) -> None:
 		self.timescale: float = timescale
 		self.updateScreen()
-		ani = FuncAnimation(self.fig, self.animate, frames=250, interval=10)
+		self.ani = FuncAnimation(self.fig, self.animate, frames=1650, interval=1000/30)
 
 		plt.show()
