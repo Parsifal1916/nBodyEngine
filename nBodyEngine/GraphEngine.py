@@ -3,13 +3,15 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 
 class Graph:
-	def __init__(self, bodies, graphLimits, graphs: list = [], toggleInstableOrbits: bool = False) -> None:
+	def __init__(self, bodies, graphLimits, graphs: list = [], toggleInstableOrbits: bool = False, toggleCommonCenter: bool = True) -> None:
 		self.bodies: list = bodies
 		self.graphLimits: float = graphLimits
 		self.graphs: list[int , ...] = graphs
 		self.hasMultipleGraphs:bool = False
 		self.nOfGraphs: int = len(graphs)
 		self.IOvisible: bool = toggleInstableOrbits # decide se mostrare o meno le orbite instabili
+		self.showCenter = toggleCommonCenter
+
 
 		'''questa lista conteine un dict per ogni attributo possibile (per ora 3)
 		   i dict contengono n del corpo : [grafico]
@@ -86,13 +88,22 @@ class Graph:
 				
 	def animate(self, i) -> None:
 		self.updateScreen()
-		#calcola le forze per tutti i corpi
+		#calcola le forze per tutti i corpi			
+		if self.showCenter:
+			center_x = sum([body.m * body.x for body in self.bodies]) / sum([body.m for body in self.bodies])
+			center_y = sum([body.m * body.y for body in self.bodies]) / sum([body.m for body in self.bodies])
+
+			if center_y < self.graphLimits and center_x < self.graphLimits:
+ 				self.graphsPositions[0].plot(center_x, center_y, '+', color = 'red')
+ 				
 		for body in self.bodies:
 			self.graphsPositions[0].plot(body.x, body.y, 'o', markersize=body.getMarkerSize(self.graphLimits), color=body.color)
+			
 			if self.IOvisible: 
 				marker_circle = plt.Circle((body.x, body.y), body.convert2Screen(self.graphLimits, body.instableOrbitThreshold), edgecolor='black', facecolor='none')
 				self.graphsPositions[0].add_patch(marker_circle)
-			
+
+
 			dt = self.timescale
 			body.update(dt)
 	
