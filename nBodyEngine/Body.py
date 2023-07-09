@@ -1,4 +1,5 @@
 import numpy as np
+from math import atan2
 
 G = 6.67430e-11  # N(m/kg)^2
 c = 299_792_458  # m/s velocità della luce
@@ -40,15 +41,8 @@ class Body:
 		if attr == 0: return self.Velocity		#velocità
 		if attr == 1: return self.getAttribute(0)**2*self.m*.5	#energia cinetica
 		if attr == 3: return self.a
-		res: float = 0
-		for _ in self.bodies: 				# se questo codice viene eseguito  vuoldire che attr != [0,1]
-			if _ == self: continue 			# esclude se stesso
-			res += -self.m*_.m*G/self.getDistance(_.x, _.y)[0]
-		return res		
-
-	@property 
-	def Velocity(self):
-		return np.sqrt(self.vx**2 + self.vy**2)
+		# se questo codice viene eseguito  vuoldire che attr != [0,1,3]
+		return self.potentialEnergy
 
 	def pitagora(self, x, y):
 		return np.sqrt(float(x)**2 + float(y)**2)
@@ -56,12 +50,11 @@ class Body:
 	def getSecondPNE(self, bodies):
 		vec = [0, 0]
 
-		totalMass = sum([i.m for i in bodies])
+		totalMass = self.centralMass
 
 		# calcola il baricentro comune
-		center_x = sum([body.m * body.x for body in bodies]) / sum([body.m for body in bodies])
-		center_y = sum([body.m * body.y for body in bodies]) / sum([body.m for body in bodies])
- 		
+		center_x, center_y = self.center
+		
 		r, dx, dy = self.getDistance(center_x, center_y) # distanza dal baricentro
 
 		self.a = -G * totalMass / (2 * (self.getAttribute(2) + self.getAttribute(1))/self.m)# semiasse maggiore
@@ -83,7 +76,6 @@ class Body:
 		self.p_TotForce = np.sqrt(Fy_precession**2 + Fx_precession**2)
 	    
 		return vec
-
 
 	def getMarkerSize(self, graphLimits) -> int: 
 		'''calcola la grandezza del marker'''
@@ -154,3 +146,27 @@ class Body:
 		itsposition = np.array([x,y])
 
 		return (myposition-itsposition) / np.linalg.norm(myposition - itsposition)
+
+	@property 
+	def potentialEnergy(self):
+		r = self.getDistance(*self.center)[0]
+
+		frequency = self.Velocity / ( 2 * np.pi *  r)	
+
+		angularMomentum = 2 * np.pi * frequency * self.m * r**2
+
+		potE = (-G*self.m*self.centralMass/r) + (angularMomentum**2 / 2 * self.m * r**2 ) - ((G*self.centralMass* angularMomentum**2)/self.m*c**2 * r**3)
+
+		return potE
+
+	@property 
+	def Velocity(self):
+		return np.sqrt(self.vx**2 + self.vy**2)
+
+	@property 
+	def center(self) -> tuple[float, float]:
+		return sum([body.m * body.x for body in self.bodies]) / sum([body.m for body in self.bodies]) , sum([body.m * body.y for body in self.bodies]) / sum([body.m for body in self.bodies])
+
+	@property
+	def centralMass(self) -> float:
+		return sum([i.m for i in self.bodies])
