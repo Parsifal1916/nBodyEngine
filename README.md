@@ -34,9 +34,23 @@ The class contains the following functions:
 
 - **nBodyEngine.Body.getMarkerSize(graphLimits)**: Calculates the size of the marker according to the size of the graph (graphLimits) and the radius of the object; it will return a number based on the mass if '**useAccurateSize**' is set to false.
 
+- **nBodyEngine.Body.pitagora(x, y)**: Returns the sqrt of x^2 + y^2
+
+- **nBodyEngine.Body.getSecondPNE()**: Calculates the precession of the body around the common baricenter. It returns a list containing the force along the x axis and y axis
+
+- **nBodyEngine.Body.convert2screen()**: Is an internal function used to convert a lenght in meters to a proportional scale for the markers on screen
+
+-  **nBodyEngine.Body.validateInput(num)**: It takes in a large number of variables and returns True if all values are not infinite or NaN, False otherwise
+
 You can also set these optional boolean values:
-- **canBeBH**, it will be used in later versions to enable/disable black holes
+- **canBeBH**, is used to enable/disable black holes
 - **useAccurateSize**, it will be defaulted to True, see **nBody.Body.getMarkerSize**
+
+This class has also the following properties:
+-  **nBodyEngine.Body.potentialEnergy**: Is the relativistic potential energy
+-  **nBodyEngine.Body.Velocity**: Is the body's velocity
+-  **nBodyEngine.Body.center**: Is the common baricenter in terms of x and y
+-  **nBodyEngine.Body.centralMass**: Is the combined mass of all the bodies in the simulation
 
 ### GraphEngine.py
 This script contains the Graph class which requires the following arguments (in order):
@@ -80,13 +94,20 @@ Replacing '**bodies**' with the list of bodies in the simulation, these bodies w
 	],
 	"Simulation":{
 		"speed": speed,
-		"size": size
-		"useAccurateSize": 1
+		"size": size,
+		"useAccurateSize": 1,
+		"toggleInstableOrbits" : true,
+		"toggleCommonCenter" : true
 	}
 }
 ```
-
-(where in the simulation there is only one body with a mass of 1.98e87 kg, x and y positions of 0, and x and y velocities of 0). '**speed**' and '**size**' are respectively the speed of the simulation (timescale) and the size of the graph (graphLimits). useAccurateSize can be set to 1 to scale every body according to their radius (see **nBodyEngine.Body.getMarkerSize**') or to 0; if you omit it, it will be defaulted to True
+where:
+- **speed** is the speed of the simulation
+- **size** is the size of the simulation (in meters)
+- if **useAccurateSize** is set to 1 means that you have inserted a radius, otherwise nBodyEngine will calculate it by itself. see **nBodyEngine.Body.getMarkerSize**.
+- **toggleInstableOrbits** will show a circle corrisponding to 3 x the schwarzshild radius if set to true.
+- **toggleCommonCenter** shows a little '+' marker where the common center of mass is.
+(in this case, in the simulation there is only one body with a mass of 1.98e87 kg, x and y positions of 0, and x and y velocities of 0)
 
 ### Example
 This function can be used as follows:
@@ -111,4 +132,4 @@ This list must have a length of 3 elements maximum (since there are only 3 attri
 	}
 }
 ```
-In this example we create a simulation with all three attributs shown. You can change the order and the amount of attributes as you prefer.
+In this example we create a simulation with all three attributes shown. You can change the order and the amount of attributes as you wish.
