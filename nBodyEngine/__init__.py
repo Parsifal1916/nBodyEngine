@@ -15,7 +15,14 @@ def simulateFromJson(jsonFile: str) -> None:
 		for i in _bodies:
 			try: useAccurateSize = content['Simulation']['useAccurateSize']
 			except KeyError: useAccurateSize = False
-			bodies.append(Body.Body(i, bodies, useAccurateSize = useAccurateSize))
+			bodies.append(Body.Body(
+				i, 
+				bodies, 
+				useAccurateSize = content['Simulation'].get('useAccurateSize', False),
+				includeSR = content['Simulation'].get('includeSR', False),
+				dimensions = content['Simulation'].get('style', 2)
+				))
+
 		for i in bodies: i.bodies = bodies
 
 
@@ -24,7 +31,8 @@ def simulateFromJson(jsonFile: str) -> None:
 			bodies, 
 			content['Simulation']['size'], 
 			content['Simulation']['graphs'], 
-			toggleInstableOrbits = content['Simulation'].get('toggleInstableOrbits', False)
+			toggleInstableOrbits = content['Simulation'].get('toggleInstableOrbits', False),
+			dimensions = content['Simulation'].get('style', 2)
 		)
 		
 		simulation.start(content['Simulation']['speed'])
