@@ -47,6 +47,7 @@ class Graph:
 		'''determina le dimensioni di GraphsPosition con cols e rows'''
 		if self.is2d:
 			self.fig, self.ax = plt.subplots(self.rows, self.cols)
+			if self.nOfGraphs == 0: return [self.ax]
 			return self.ax.flatten()
 		
 		self.fig = plt.figure()
