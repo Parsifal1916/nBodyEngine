@@ -4,14 +4,15 @@
 - **matplotlib**
 - **numpy**
 
+## What's new
+You can now have 3d simulations by changing the style of the simulation in the json file (see the json file documentation)
+
 ## Code Overview
 ### Body Class
 The **nBodyEngine.Body** class is used to represent celestial bodies. This class requires two lists, the first is composed of the following arguments (in order):
 - Mass of the body
-- x position (in meters)
-- y position (in meters)
-- x velocity (in m/s)
-- y velocity (in m/s)
+- [x, y, z]/[x,y] position components (in meters)
+- [x, y, z]/[x,y] velocity components (in m/s)
 - radius of the body (in meters)
 - (optional) marker color for visualization in the graph
 The second list contains all nBodyEngine.Body objects present in the simulation.
@@ -97,7 +98,8 @@ Replacing '**bodies**' with the list of bodies in the simulation, these bodies w
 		"size": size,
 		"useAccurateSize": 1,
 		"toggleInstableOrbits" : true,
-		"toggleCommonCenter" : true
+		"toggleCommonCenter" : true,
+		"style" : 2
 	}
 }
 ```
@@ -107,6 +109,7 @@ where:
 - if **useAccurateSize** is set to 1 means that you have inserted a radius, otherwise nBodyEngine will calculate it by itself. see **nBodyEngine.Body.getMarkerSize**.
 - **toggleInstableOrbits** will show a circle corrisponding to 3 x the schwarzshild radius if set to true.
 - **toggleCommonCenter** shows a little '+' marker where the common center of mass is.
+- **style** is the number of dimensions of the simulation (2 or 3)
 (in this case, in the simulation there is only one body with a mass of 1.98e87 kg, x and y positions of 0, and x and y velocities of 0)
 
 ### Example
