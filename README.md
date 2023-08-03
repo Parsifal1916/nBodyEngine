@@ -116,6 +116,7 @@ where:
 - **toggleCommonCenter** shows a little '+' marker where the common center of mass is.
 - **style** is the number of dimensions of the simulation (2 or 3)
 - **IncludeSR** enables the relativistic mass (see the Body class)
+
 (in this case, in the simulation there is only one body with a mass of 1.98e87 kg, x and y positions of 0, and x and y velocities of 0)
 
 ### Example
