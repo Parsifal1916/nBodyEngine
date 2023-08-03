@@ -131,7 +131,8 @@ This list must have a length of 3 elements maximum (since there are only 3 attri
 		"speed": speed,
 		"size": size
 		"useAccurateSize": 1,
-		"graph": [0,1,2]
+		"graph": [0,1,2],
+		"style": 2
 	}
 }
 ```
