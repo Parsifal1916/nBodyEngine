@@ -17,6 +17,8 @@ The **nBodyEngine.Body** class is used to represent celestial bodies. This class
 - (optional) marker color for visualization in the graph
 The second list contains all nBodyEngine.Body objects present in the simulation.
 
+Another optianal boolean value that cannot be set from the simulateFromJson function is IncludeSR which enables a relativistic mass that changes with the velocity of the body
+
 The class contains the following functions:
 
 - **nBodyEngine.Body.getAttribute(attr)**: depending on the value of '**attr**' it returns a different attribute of the body. it is used by **GraphEngine.py** to graph velocity, kinetic and potential energy. The possible inputs are listed below:
