@@ -17,7 +17,7 @@ The **nBodyEngine.Body** class is used to represent celestial bodies. This class
 - (optional) marker color for visualization in the graph
 The second list contains all nBodyEngine.Body objects present in the simulation.
 
-Another optianal boolean value that cannot be set from the simulateFromJson function is IncludeSR which enables a relativistic mass that changes with the velocity of the body
+Another optional boolean value that can be set from the simulateFromJson function is IncludeSR which enables a relativistic mass that changes with the velocity of the body
 
 The class contains the following functions:
 
@@ -84,8 +84,10 @@ The **nBodyEngine.simulateFromJson(jsonFile)** function allows to start a simula
 	],
 	"Simulation":{
 		"speed": speed,
-		"size": size
-		"useAccurateSize": 1
+		"size": size,
+		"useAccurateSize": 1,
+		"style": 2,
+		"IncludeSR": true
 	}
 }
 ```
@@ -99,9 +101,10 @@ Replacing '**bodies**' with the list of bodies in the simulation, these bodies w
 		"speed": speed,
 		"size": size,
 		"useAccurateSize": 1,
-		"toggleInstableOrbits" : true,
-		"toggleCommonCenter" : true,
-		"style" : 2
+		"toggleInstableOrbits": true,
+		"toggleCommonCenter": true,
+		"style": 2,
+		"IncludeSR": true
 	}
 }
 ```
@@ -112,6 +115,7 @@ where:
 - **toggleInstableOrbits** will show a circle corrisponding to 3 x the schwarzshild radius if set to true.
 - **toggleCommonCenter** shows a little '+' marker where the common center of mass is.
 - **style** is the number of dimensions of the simulation (2 or 3)
+- **IncludeSR** enables the relativistic mass (see the Body class)
 (in this case, in the simulation there is only one body with a mass of 1.98e87 kg, x and y positions of 0, and x and y velocities of 0)
 
 ### Example
@@ -134,7 +138,8 @@ This list must have a length of 3 elements maximum (since there are only 3 attri
 		"size": size
 		"useAccurateSize": 1,
 		"graph": [0,1,2],
-		"style": 2
+		"style": 2,
+		"IncludeSR": true
 	}
 }
 ```
