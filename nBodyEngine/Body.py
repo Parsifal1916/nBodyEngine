@@ -92,13 +92,11 @@ class Body:
 	def net_force(self) -> np.array:
 		'''calcola la forza totale'''
 		p_force = np.array([0. for i in range(self.dimensions)])
-		print(self.dimensions)
 		for other in self.bodies:
 			if other == self: continue 							   # esclude se stesso
 			r, delta = self.getDistance(other.position) 		   # ottiene r x calcolare la forza
 			f = -G * self.m * other.m / r**2   	  # calcola la forza
-			drt = self.getDirectionVector(other.position)	
-			print(drt)			   
+			drt = self.getDirectionVector(other.position)		   
 			p_force += drt*f # aggiorna la forza
 		return p_force
 
@@ -171,7 +169,6 @@ class Body:
 
 	@property
 	def totalVelocity(self):
-		print(self.position)
 		return sum(self.velocity**2)
 
 	@property
