@@ -3,9 +3,10 @@ from . import GraphEngine
 import json
 import os
 
-print('Modulo importato con successo')
+print('nBodyEngine Installed Successfully!')
 
 def simulateFromJson(jsonFile: str) -> None:
+	print('loading json file...')
 	with open(jsonFile, 'r') as file:
 		content = json.load(file) # estrae il contenuto del file
 
@@ -34,5 +35,5 @@ def simulateFromJson(jsonFile: str) -> None:
 			toggleInstableOrbits = content['Simulation'].get('toggleInstableOrbits', False),
 			dimensions = content['Simulation'].get('style', 2)
 		)
-		
+		print('starting the simulation..')
 		simulation.start(content['Simulation']['speed'])
