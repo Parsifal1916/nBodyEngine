@@ -7,6 +7,12 @@
 ## What's new
 You can now have 3d simulations by changing the style of the simulation in the json file (see the json file documentation)
 
+## Installation 
+To install the nBodyEngine module you'll need python 3.7 or higher. You'll then have to run the following command to install the module from pypi (Python Packages Index):
+```bash 
+pip install nBodyEngine 
+```
+
 ## Code Overview
 ### Body Class
 The **nBodyEngine.Body** class is used to represent celestial bodies. This class requires two lists, the first is composed of the following arguments (in order):
