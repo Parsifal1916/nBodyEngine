@@ -3,10 +3,9 @@ from math import atan2
 
 G = 6.67430e-11  # N(m/kg)^2
 c = 299_792_458  # m/s velocità della luce
-
 		
 class Body:
-	def __init__(self, infos: list, bodies: list, canBeBH: bool = True, useAccurateSize: bool = True, includeSR: bool = False, dimensions: int = 2) -> None:
+	def __init__(self, infos: list, currentSimulation, canBeBH: bool = True, useAccurateSize: bool = True, includeSR: bool = False, dimensions: int = 2) -> None:
 		self.mass: float = infos[0]	# Massa 		kg
 		self.position = np.array(infos[1])*1.
 		self.velocity = np.array(infos[2])*1.
@@ -22,7 +21,11 @@ class Body:
 		self.possibleAttributes = [0,1,2,3]
 		self.p_TotForce = 0
 
-		self.bodies: list[Body, ...] = bodies
+		self.positionInArray = 0
+		self.distances: dict[Body, float] = {}
+
+		self.bodies: list[Body, ...] = currentSimulation.bodies
+		self.currentSimulation = currentSimulation
 		self.useAccurateSize: bool = useAccurateSize
 
 		# GR setup
@@ -44,6 +47,11 @@ class Body:
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #++++++++++++++++++++++++ Vectors ++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+	def initializeDistances(self) -> None:
+		# trova se stesso nell'array di body
+		for index, body in enumerate(self.bodies):
+			if body == self: self.positionInArray = index
 	
 	def pitagora(self, position) -> float:
 		return np.sqrt(sum(position**2))
@@ -96,13 +104,18 @@ class Body:
 			if other == self: continue 							   # esclude se stesso
 			r, delta = self.getDistance(other.position) 		   # ottiene r x calcolare la forza
 			f = -G * self.m * other.m / r**2   	  # calcola la forza
-			drt = self.getDirectionVector(other.position)		   
+			drt = self.getDirectionVector(other.position)				   
 			p_force += drt*f # aggiorna la forza
+
+			if other.positionInArray > self.positionInArray:
+				self.distances[other] = r 
+				
 		return p_force
 
 	def update(self,dt) -> np.array:
 		''' aggiorna la velocità '''
 
+		self.bodies = self.currentSimulation.bodies
 		self.velocity += (self.getSecondPNE(self.bodies) / self.m) * dt
 
 		# calcola la forza proveniente da tutti i corpi
@@ -184,4 +197,6 @@ class Body:
 
 	@property 
 	def center(self) -> tuple[float, float]:
-		return sum([body.m * body.position for body in self.bodies]) / sum([body.m for body in self.bodies])
+
+		try: return sum([body.m * body.position for body in self.bodies]) / sum([body.m for body in self.bodies])
+		except ZeroDivisionError: return np.array([0 for i in range(self.dimensions)])
