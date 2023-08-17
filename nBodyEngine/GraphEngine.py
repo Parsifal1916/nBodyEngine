@@ -45,6 +45,7 @@ class Graph:
 
 	def constructGraphsPosition(self) -> list:
 		'''determina le dimensioni di GraphsPosition con cols e rows'''
+
 		if self.is2d:
 			self.fig, self.ax = plt.subplots(self.rows, self.cols)
 			if self.nOfGraphs == 0: return [self.ax]
@@ -105,6 +106,8 @@ class Graph:
 	def animate(self, i) -> None:
 		self.updateScreen()
 		#calcola le forze per tutti i corpi	
+		if self.bodies[0].distances == {}: 
+			for _ in self.bodies: _.initializeDistances()
 
 		if self.showCenter:
 			pos = self.bodies[0].center
@@ -124,6 +127,7 @@ class Graph:
 		self.timescale: float = timescale
 
 		self.updateScreen()
+		
 		self.ani = FuncAnimation(self.fig, self.animate, frames=1650, interval=1000/30)
-
+		
 		plt.show()
