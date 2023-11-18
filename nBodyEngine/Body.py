@@ -107,9 +107,9 @@ class Body:
 
 		# calcola la forza proveniente da tutti i corpi
 
-		self.velocity += (self.net_force() / self.m)
+		self.velocity += (self.net_force() / self.m) * dt
 
-		self.position += self.velocity * dt
+		self.position += self.velocity
 
 		return self.position
 
