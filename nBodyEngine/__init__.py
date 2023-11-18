@@ -25,7 +25,7 @@ def simulateFromJson(jsonFile: str) -> None:
 				))
 
 		for i in bodies: i.bodies = bodies
-
+		print(content['Simulation'].get('pathTracing', False))
 
 		#comincia la simulazione
 		simulation=GraphEngine.Graph(
@@ -33,6 +33,7 @@ def simulateFromJson(jsonFile: str) -> None:
 			content['Simulation']['size'], 
 			content['Simulation']['graphs'], 
 			toggleInstableOrbits = content['Simulation'].get('toggleInstableOrbits', False),
+			pathTracing = content['Simulation'].get('pathTracing', False),
 			dimensions = content['Simulation'].get('style', 2)
 		)
 		print('starting the simulation..')
