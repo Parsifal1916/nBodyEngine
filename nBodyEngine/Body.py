@@ -103,7 +103,7 @@ class Body:
 	def update(self,dt) -> np.array:
 		''' aggiorna la velocità '''
 
-		self.velocity += (self.getSecondPNE(self.bodies) / self.m) * dt
+		self.velocity += (self.getSecondPNE(self.bodies) / self.m)
 
 		# calcola la forza proveniente da tutti i corpi
 
