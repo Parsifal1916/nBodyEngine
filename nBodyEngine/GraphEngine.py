@@ -4,7 +4,7 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
 class Graph:
-	def __init__(self, bodies, graphLimits, graphs: list = [], dimensions = 2 , toggleInstableOrbits: bool = False, toggleCommonCenter: bool = True) -> None:
+	def __init__(self, bodies, graphLimits, graphs: list = [], pathTracing = False, dimensions = 2 , toggleInstableOrbits: bool = False, toggleCommonCenter: bool = True) -> None:
 		self.bodies: list = bodies
 		self.graphLimits: float = graphLimits
 		self.graphs: list[int , ...] = graphs
@@ -14,6 +14,10 @@ class Graph:
 		self.showCenter = toggleCommonCenter
 		self.is2d = (dimensions <= 2) 
 		self.dimensions = dimensions
+		self.pathTracing = pathTracing
+		if pathTracing: 
+			self.paths = {}
+			for body in bodies: self.paths[body] = ([],[])
 
 		if dimensions > 2 and self.nOfGraphs > 2: raise NotImplementedError("having more than 2 graphs with a 3d simulation is not supported yet")
 
@@ -47,8 +51,7 @@ class Graph:
 		'''determina le dimensioni di GraphsPosition con cols e rows'''
 		if self.is2d:
 			self.fig, self.ax = plt.subplots(self.rows, self.cols)
-			if self.nOfGraphs == 0: return [self.ax]
-			return self.ax.flatten()
+			return [self.ax] if self.nOfGraphs == 0 else self.ax.flatten()
 		
 		self.fig = plt.figure()
 		res = []
@@ -112,8 +115,14 @@ class Graph:
  				self.graphsPositions[0].plot(*pos, '+', color = 'red')
  				
 		for body in self.bodies:
-			self.graphsPositions[0].plot(*body.position, 'o', markersize=body.getMarkerSize(self.graphLimits), color=body.color)
+			pos = body.position
+			self.graphsPositions[0].plot(*pos, 'o', markersize=body.getMarkerSize(self.graphLimits), color=body.color)
 			
+			if self.pathTracing:
+				self.paths[body][0].append(pos[0])
+				self.paths[body][1].append(pos[1])
+				plt.plot(self.paths[body][0], self.paths[body][1], linestyle='-', color='blue')
+
 			if self.IOvisible and self.is2d: 
 				markerPos = [body.position[i] for i in range(len(body.position))]
 				marker_circle = plt.Circle((markerPos), body.convert2Screen(self.graphLimits, body.instableOrbitThreshold), edgecolor='black', facecolor='none')
