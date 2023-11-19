@@ -1,5 +1,4 @@
 from numpy import floor
-def a():...
 
 class Grid:
 	def __init__(self, cells, graphLimits,dimensions = 2):
