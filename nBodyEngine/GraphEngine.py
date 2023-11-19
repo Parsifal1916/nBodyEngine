@@ -2,9 +2,10 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
+from .Grid import *
 
 class Graph:
-	def __init__(self, bodies, graphLimits, graphs: list = [], pathTracing = False, dimensions = 2 , toggleInstableOrbits: bool = False, toggleCommonCenter: bool = True) -> None:
+	def __init__(self, graphLimits, graphs: list = [], bodies = [], pathTracing = False, dimensions = 2 , toggleInstableOrbits: bool = False, toggleCommonCenter: bool = True, useGrid = True, nOfCells = 2) -> None:
 		self.bodies: list = bodies
 		self.graphLimits: float = graphLimits
 		self.graphs: list[int , ...] = graphs
@@ -15,9 +16,10 @@ class Graph:
 		self.is2d = (dimensions <= 2) 
 		self.dimensions = dimensions
 		self.pathTracing = pathTracing
-		if pathTracing: 
-			self.paths = {}
-			for body in bodies: self.paths[body] = ([],[])
+		self.useGrid = useGrid
+		if useGrid:
+			assert nOfCells != 0, "Cannot have 0 cells in a grid, modify this value with the nOfCells attribute"
+			self.grid = Grid(3, graphLimits)
 
 		if dimensions > 2 and self.nOfGraphs > 2: raise NotImplementedError("having more than 2 graphs with a 3d simulation is not supported yet")
 
@@ -36,7 +38,7 @@ class Graph:
 		   '''
 
 		# se ci sono dei grafici extra da inserire crea graph data con tante liste vuote quanti grafici extra ci sono 
-		assert self.nOfGraphs <= 3, f"You cannot put more than three graphs in the simulation. Tou tried to put {self.nOfGraphs}"
+		assert self.nOfGraphs <= 3, f"You cannot put more than three graphs in the same simulation. You tried to put {self.nOfGraphs}"
 
 		if self.nOfGraphs in [1,2]: rows, cols = 1, self.nOfGraphs+1
 		elif self.nOfGraphs == 3: rows, cols = 2,2		
@@ -131,6 +133,10 @@ class Graph:
 	
 	def start(self, timescale) -> None:
 		self.timescale: float = timescale
+
+		if self.pathTracing: 
+			self.paths = {}
+			for body in self.bodies: self.paths[body] = ([],[])
 
 		self.updateScreen()
 		self.ani = FuncAnimation(self.fig, self.animate, frames=1650, interval=1000/30)
