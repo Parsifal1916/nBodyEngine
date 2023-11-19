@@ -49,7 +49,9 @@ The class contains the following functions:
 
 - **nBodyEngine.Body.update(dt)**: Updates the position (**self.x** and **self.y**) based on the velocity value (**self.vx** and **self.vy**).
 
-- **nBodyEngine.Body.net_force()**: Calculates the force exerted by all other bodies in the simulation on the given body. Returns two floats (**nBodyEngine.Body.fy** and **nBodyEngine.Body.fx**).
+- **nBodyEngine.Body.net_force(bodies)**: Calculates the force exerted by all other bodies in the in the given list on the given body. Returns two floats (**nBodyEngine.Body.fy** and **nBodyEngine.Body.fx**).
+
+- **nBodyEngine.Body.getNearbyBodies()**: Returns a list containing all the bodies in the nearby cells if **useGrid** is set to true in the simulation
 
 - **nBodyEngine.Body.GetDistance(x, y)**: Calculates the distance between the given body and a given coordinate. Used to calculate gravitational attraction between bodies.
 
