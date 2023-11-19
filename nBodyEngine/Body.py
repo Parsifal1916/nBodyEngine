@@ -105,6 +105,7 @@ class Body:
 		for other in bodies:
 			if other == self: continue 							   # esclude se stesso
 			r, delta = self.getDistance(other.position) 		   # ottiene r x calcolare la forza
+			if r < 2*self.radius: continue
 			f = -G * self.m * other.m / r**2   	  # calcola la forza
 			drt = self.getDirectionVector(other.position)		   
 			p_force += drt*f # aggiorna la forza
