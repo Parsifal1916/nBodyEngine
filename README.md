@@ -15,15 +15,29 @@ pip install nBodyEngine
 
 ## Code Overview
 ### Body Class
-The **nBodyEngine.Body** class is used to represent celestial bodies. This class requires two lists, the first is composed of the following arguments (in order):
+The **nBodyEngine.Body** class is used to represent celestial bodies. This class requires the GraphEngine object and a list composed of the following arguments (in order):
 - Mass of the body
 - [x, y, z]/[x,y] position components (in meters)
 - [x, y, z]/[x,y] velocity components (in m/s)
 - radius of the body (in meters)
 - (optional) marker color for visualization in the graph
-The second list contains all nBodyEngine.Body objects present in the simulation.
 
 Another optional boolean value that can be set from the simulateFromJson function is IncludeSR which enables a relativistic mass that changes with the velocity of the body
+
+```Python
+from nBodyEngine.Body import Body
+from nBodyEngine.GraphEngine import Graph
+
+simulation = Graph(1e10)
+body = Body(simulation, [
+	1e27,	# mass of the object
+	[0,0],	# x and y position
+	[0,0],	# x and y velocity
+	2e7	# radius of the body
+	])
+simualtion.start()
+```
+
 
 The class contains the following functions:
 
@@ -35,7 +49,9 @@ The class contains the following functions:
 
 - **nBodyEngine.Body.update(dt)**: Updates the position (**self.x** and **self.y**) based on the velocity value (**self.vx** and **self.vy**).
 
-- **nBodyEngine.Body.net_force()**: Calculates the force exerted by all other bodies in the simulation on the given body. Returns two floats (**nBodyEngine.Body.fy** and **nBodyEngine.Body.fx**).
+- **nBodyEngine.Body.net_force(bodies)**: Calculates the force exerted by all other bodies in the in the given list on the given body. Returns two floats (**nBodyEngine.Body.fy** and **nBodyEngine.Body.fx**).
+
+- **nBodyEngine.Body.getNearbyBodies()**: Returns a list containing all the bodies in the nearby cells if **useGrid** is set to true in the simulation
 
 - **nBodyEngine.Body.GetDistance(x, y)**: Calculates the distance between the given body and a given coordinate. Used to calculate gravitational attraction between bodies.
 

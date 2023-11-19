@@ -1,17 +1,27 @@
 import numpy as np
 from math import atan2
 
+
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
 G = 6.67430e-11  # N(m/kg)^2
 c = 299_792_458  # m/s velocità della luce
 
-		
 class Body:
-	def __init__(self, infos: list, bodies: list, canBeBH: bool = True, useAccurateSize: bool = True, includeSR: bool = False, dimensions: int = 2) -> None:
+	def __init__(self, simulation, infos: list,canBeBH: bool = True, useAccurateSize: bool = True, includeSR: bool = False, dimensions: int = 2) -> None:
 		self.mass: float = infos[0]	# Massa 		kg
 		self.position = np.array(infos[1])*1.
 		self.velocity = np.array(infos[2])*1.
 		self.radius: float = infos[3] # raggio del corpo
 		self.dimensions = dimensions
+		self.simulation = simulation
+		
+		self.useGrid = simulation.useGrid
+		if self.useGrid: 
+			
+			self.gridObject = self.simulation.grid
+			self.cell = self.gridObject.mapToGrid(self.position)
 		
 		self.a = 0
 		
@@ -22,7 +32,7 @@ class Body:
 		self.possibleAttributes = [0,1,2,3]
 		self.p_TotForce = 0
 
-		self.bodies: list[Body, ...] = bodies
+		self.bodies: list[Body, ...] = self.simulation.bodies
 		self.useAccurateSize: bool = useAccurateSize
 
 		# GR setup
@@ -89,27 +99,41 @@ class Body:
 		
 		return precession
 
-	def net_force(self) -> np.array:
+	def net_force(self, bodies) -> np.array:
 		'''calcola la forza totale'''
 		p_force = np.array([0. for i in range(self.dimensions)])
-		for other in self.bodies:
+		for other in bodies:
 			if other == self: continue 							   # esclude se stesso
 			r, delta = self.getDistance(other.position) 		   # ottiene r x calcolare la forza
+			if r < 2*self.radius: continue
 			f = -G * self.m * other.m / r**2   	  # calcola la forza
 			drt = self.getDirectionVector(other.position)		   
 			p_force += drt*f # aggiorna la forza
 		return p_force
 
+	@property
+	def getNearbyBodies(self):
+		for dx in range(-1, 2):
+			for dy in range(-1, 2):
+				try: Cell = self.simulation.grid[dx+self.cell[0], dy+self.cell[1]]
+				except KeyError: continue
+				for body in Cell: yield body
+
 	def update(self,dt) -> np.array:
 		''' aggiorna la velocità '''
 
-		self.velocity += (self.getSecondPNE(self.bodies) / self.m)
-
+		self.velocity += (self.getSecondPNE(self.simulation.bodies) / self.m)
 		# calcola la forza proveniente da tutti i corpi
 
-		self.velocity += (self.net_force() / self.m) * dt
+		self.velocity += (self.net_force(self.simulation.bodies) / self.m)* dt
 
-		self.position += self.velocity
+		self.position += self.velocity 
+
+		if self.useGrid:
+			try: self.gridObject[self.cell].remove(self)
+			except ValueError: ...
+			self.cell = self.gridObject.mapToGrid(self.position)
+			self.gridObject[self.cell].append(self)
 
 		return self.position
 
@@ -180,8 +204,8 @@ class Body:
 
 	@property
 	def centralMass(self) -> float:
-		return sum([i.m for i in self.bodies])
+		return sum([i.m for i in self.simulation.bodies])
 
 	@property 
 	def center(self) -> tuple[float, float]:
-		return sum([body.m * body.position for body in self.bodies]) / sum([body.m for body in self.bodies])
+		return sum([body.m * body.position for body in self.simulation.bodies]) / sum([body.m for body in self.bodies])
