@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from .Grid import *
 
 class Graph:
-	def __init__(self, graphLimits, graphs: list = [], bodies = [], pathTracing = False, dimensions = 2 , toggleInstableOrbits: bool = False, toggleCommonCenter: bool = True, useGrid = True, nOfCells = 2) -> None:
+	def __init__(self, graphLimits, graphs: list = [], bodies = [], pathTracing = False, dimensions = 2 , toggleInstableOrbits: bool = False, toggleCommonCenter: bool = True, useGrid = True, nOfCells = 5) -> None:
 		self.bodies: list = bodies
 		self.graphLimits: float = graphLimits
 		self.graphs: list[int , ...] = graphs
