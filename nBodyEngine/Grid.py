@@ -25,9 +25,9 @@ class Grid:
 
 	@property
 	def initialize3dGrif(self):
-		for x in range(self.ells):
+		for x in range(self.cells):
 			for y in range(self.cells):
-				for x in range(self.cells):
+				for z in range(self.cells):
 					self.grid[x,y,z] = []
 					
 	def addItem(self, cell, item):
